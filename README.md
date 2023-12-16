@@ -1,4 +1,9 @@
 # LeetCode Tutor
+
+<a href="https://visitcount.itsvg.in">
+  <img src="https://visitcount.itsvg.in/api?id=leetcode-tutor&label=Profile%20Views&color=10&icon=6&pretty=false" />
+</a>
+
 A Chrome extension for training LeetCode.
 
 ## Installing and Running
