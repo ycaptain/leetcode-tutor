@@ -52,6 +52,9 @@ devDependencies:
   '@types/react-dom':
     specifier: ^18.0.10
     version: 18.2.18
+  '@xstate/test':
+    specifier: ^0.5.1
+    version: 0.5.1(xstate@5.3.0)
   babel-eslint:
     specifier: ^10.1.0
     version: 10.1.0(eslint@8.56.0)
@@ -2997,6 +3000,14 @@ packages:
       webpack-dev-server: 4.15.1(webpack-cli@4.10.0)(webpack@5.89.0)
     dev: true
 
+  /@xstate/graph@1.4.2(xstate@5.3.0):
+    resolution: {integrity: sha512-XIh6opCf9ukXRj4dXe2fv2kwFFUl15B5Ob8ELNOOqDXB2BPyNwp6TaLe5KJn/na3gzC9B7LyOo+2d0dPkC8PWQ==}
+    peerDependencies:
+      xstate: ^4.30.3
+    dependencies:
+      xstate: 5.3.0
+    dev: true
+
   /@xstate/react@4.0.1(@types/react@18.2.45)(react@18.2.0)(xstate@5.3.0):
     resolution: {integrity: sha512-UB9qUC11wcaYd05wGea0mvEA3uTHikNaB4InMZfxD7MVFxzBFU+3JFkemjiN8bDdPJfDrObyP9ZPDVojq2LytA==}
     peerDependencies:
@@ -3013,6 +3024,16 @@ packages:
     transitivePeerDependencies:
       - '@types/react'
     dev: false
+
+  /@xstate/test@0.5.1(xstate@5.3.0):
+    resolution: {integrity: sha512-Ltz46QR9QvEuhlNy+zvs+5ylfpGXzDBh+jVC1/WL8w88uEbN+Wf1bJ/Bi5OWVWWEgXJxfcmlavN4hJOqtQuqgQ==}
+    peerDependencies:
+      xstate: ^4.29.0
+    dependencies:
+      '@xstate/graph': 1.4.2(xstate@5.3.0)
+      chalk: 2.4.2
+      xstate: 5.3.0
+    dev: true
 
   /@xtuc/ieee754@1.2.0:
     resolution: {integrity: sha512-DX8nKgqcGwsc0eJSqYt5lwP4DH5FlHnmuWWBRy7X0NcaGR0ZtuyeESgMwTYVEtxmsNGY+qit4QYT/MIYTOTPeA==}
@@ -8831,7 +8852,6 @@ packages:
 
   /xstate@5.3.0:
     resolution: {integrity: sha512-7Fx5TgxAFA1vhjtYp46U3+6XbCIZNobBJpT3MdeRb4msOioyKP1YJte9R8GMXh7ilFrGuHx72E836/7KYVkK1w==}
-    dev: false
 
   /y18n@5.0.8:
     resolution: {integrity: sha512-0pfFzegeDWJHJIAmTLRP2DwHjdF5s7jo9tuztdQxAhINCdvS+3nGINqPd00AphqJR/0LhANUS6/+7SCb98YOfA==}

@@ -47,8 +47,8 @@ export const problemMachine = createMachine(
             actions: assign(({ event }) => {
               const now = Date.now();
               return  {
-                  ...event.question,
-                  reviews: [now],
+                ...event.question,
+                reviews: [now],
               } satisfies Question
             }),
           },
@@ -74,19 +74,19 @@ export const problemMachine = createMachine(
         },
       },
       mastered: {
-          on: {
-            train: {
-              actions: assign({
-                reviews: (ctx) => [...ctx.context.reviews, Date.now()]
-              }),
-            },
-            reset: {
-              target: "idle",
-              actions: assign({
-                reviews: () => []
-              }),
-            },
+        on: {
+          train: {
+            actions: assign({
+              reviews: (ctx) => [...ctx.context.reviews, Date.now()]
+            }),
           },
+          reset: {
+            target: "idle",
+            actions: assign({
+              reviews: () => []
+            }),
+          },
+        },
       },
     },
     types: {
@@ -95,3 +95,5 @@ export const problemMachine = createMachine(
     },
   }
 );
+
+export type ProblemMachineType = typeof problemMachine;
