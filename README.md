@@ -1,5 +1,4 @@
 # LeetCode Tutor
-
 A Chrome extension for training LeetCode.
 
 ## Installing and Running
