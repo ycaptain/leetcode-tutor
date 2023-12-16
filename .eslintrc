@@ -3,5 +3,10 @@
   "globals": {
     "chrome": "readonly"
   },
-  "ignorePatterns": ["**/node_modules/**", "**/build/**"]
+  "ignorePatterns": ["**/node_modules/**", "**/build/**"],
+  "plugins": ["@stylistic/eslint-plugin-js"],
+  "rules": {
+    "quote-props": ["error", "as-needed"],
+    "indent": ["error", 2]
+  }
 }
