@@ -1,7 +1,7 @@
 import {describe, test, expect } from '@jest/globals';
 import { createActor } from 'xstate';
 import { problemsMachine } from './problems';
-import { LeetCodeQuestion } from './problem';
+import { LeetCodeQuestion, Question } from './problem';
 
 const question1: LeetCodeQuestion = {
   questionId: "26",
@@ -96,6 +96,32 @@ describe('test machines', () => {
     expect(problemsState.context.furture).toEqual(nextFurture);
   }
 
+  function train() {
+    problemsState = problemsActor.getSnapshot();
+
+    const problemIdx = getRandomInt(0, problemsState.context.problems.length - 1);
+    const problem = problemsState.context.problems[problemIdx];
+    const problemActor = problemsState.context.problemMachines[problemIdx];
+    const problemState = problemActor.getSnapshot();
+    const newProblem = {
+      ...problemState.context,
+      reviews: problemState.context.reviews.concat(Date.now())
+    };
+
+    const newPast = [...problemsState.context.past, problemsState.context.problems];
+    const newProblems = [...problemsState.context.problems.slice(0, problemIdx), newProblem, ...problemsState.context.problems.slice(problemIdx + 1)];
+    const nextFurture: Question[] = [];
+
+    problemsActor.send({ type: 'problem.train', questionId: problem.questionId });
+    problemsState = problemsActor.getSnapshot();
+    expect(problemsState.context.past).toEqual(newPast);
+    expect(problemsState.context.problems.map(removeReviews)).toEqual(newProblems.map(removeReviews));
+    const newProblemContext = problemsState.context.problems[problemIdx];
+    expect(newProblemContext.reviews.slice(0, -1)).toEqual(newProblems[problemIdx].reviews.slice(0, -1));
+    expect(newProblemContext.reviews[newProblemContext.reviews.length - 1] >= newProblems[problemIdx].reviews[newProblems[problemIdx].reviews.length - 1]).toEqual(true);
+    expect(problemsState.context.furture).toEqual(nextFurture);
+  }
+
   test('create a problem', () => {
     const problemsActor = createActor(problemsMachine);
 
@@ -114,6 +140,11 @@ describe('test machines', () => {
     // redo creations
     for (let i = 0 ; i < 50; i++) {
       redo();
+    }
+
+    // train a random problem
+    for (let i = 0; i < 1000; i++) {
+      train();
     }
   });
 });
