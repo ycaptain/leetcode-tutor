@@ -77,7 +77,7 @@ export const problemsMachine = createMachine(
           const newProblem = snapshot.context;
 
           const newPast = [...context.past, context.problems];
-          const newProblems = [...context.problems.slice(0, machineIdx), newProblem, ...context.problems.slice(machineIdx+1)];
+          const newProblems = [...context.problems.slice(0, machineIdx), newProblem, ...context.problems.slice(machineIdx + 1)];
           const newFuture: Question[][] = [];
 
           return {
@@ -98,7 +98,7 @@ export const problemsMachine = createMachine(
           const newProblem = snapshot.context;
 
           const newPast = [...context.past, context.problems];
-          const newProblems = [...context.problems.slice(0, machineIdx), newProblem, ...context.problems.slice(machineIdx+1)];
+          const newProblems = [...context.problems.slice(0, machineIdx), newProblem, ...context.problems.slice(machineIdx + 1)];
           const newFuture: Question[][] = [];
 
           return {
@@ -109,7 +109,27 @@ export const problemsMachine = createMachine(
           }
         }),
       },
-      "problem.master": {},
+      "problem.master": {
+        actions: assign(({context, event}) => {
+          const machineIdx = context.problemMachines.findIndex(p => p.id === `problem-${event.questionId}`);
+          const machine = context.problemMachines[machineIdx];
+          context.problemMachines[machineIdx].send({type: 'master'});
+
+          const snapshot = machine.getSnapshot();
+          const newProblem = snapshot.context;
+
+          const newPast = [...context.past, context.problems];
+          const newProblems = [...context.problems.slice(0, machineIdx), newProblem, ...context.problems.slice(machineIdx + 1)];
+          const newFuture: Question[][] = [];
+
+          return {
+            past: newPast,
+            problems: newProblems,
+            furture: newFuture,
+            problemMachines: context.problemMachines
+          }
+        }),
+      },
       "problem.delete": {},
     },
     types: {
