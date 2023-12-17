@@ -1,7 +1,7 @@
 import {describe, test, expect } from '@jest/globals';
 import { createActor } from 'xstate';
 import { problemsMachine } from './problems';
-import { LeetCodeQuestion, Question } from './problem';
+import { LeetCodeQuestion } from './problem';
 
 const question1: LeetCodeQuestion = {
   questionId: "26",
@@ -57,7 +57,6 @@ describe('test machines', () => {
 
     problemsActor.send({ type: 'problem.create', question: newQuestion });
 
-
     problemsState = problemsActor.getSnapshot();
     const problemActor = problemsState.context.problemMachines[problemsState.context.problemMachines.length - 1];
     problemActor.start();
@@ -84,6 +83,19 @@ describe('test machines', () => {
     expect(problemsState.context.furture).toEqual(nextFurture);
   }
 
+  function redo() {
+    problemsState = problemsActor.getSnapshot();
+    const newPast = [...problemsState.context.past, problemsState.context.problems];
+    const newProblems = problemsState.context.furture[0];
+    const nextFurture = problemsState.context.furture.slice(1);
+
+    problemsActor.send({ type: 'redo' });
+    problemsState = problemsActor.getSnapshot();
+    expect(problemsState.context.past).toEqual(newPast);
+    expect(problemsState.context.problems).toEqual(newProblems);
+    expect(problemsState.context.furture).toEqual(nextFurture);
+  }
+
   test('create a problem', () => {
     const problemsActor = createActor(problemsMachine);
 
@@ -97,6 +109,11 @@ describe('test machines', () => {
     // undo creations
     for (let i = 0 ; i < 50; i++) {
       undo();
+    }
+
+    // redo creations
+    for (let i = 0 ; i < 50; i++) {
+      redo();
     }
   });
 });
