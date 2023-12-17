@@ -140,6 +140,26 @@ describe('test machines', () => {
     expect(problemsState.context.problems).toEqual(newProblems);
   }
 
+  function deleteProblem() {
+    problemsState = problemsActor.getSnapshot();
+
+    const problemIdx = getRandomInt(0, problemsState.context.problems.length - 1);
+    const problem = problemsState.context.problems[problemIdx];
+    const problemActor = problemsState.context.problemMachines[problemIdx];
+
+
+    const newPast = [...problemsState.context.past, problemsState.context.problems];
+    const newProblems = [...problemsState.context.problems.slice(0, problemIdx), ...problemsState.context.problems.slice(problemIdx + 1)];
+    const nextFurture: Question[] = [];
+
+    problemsActor.send({ type: 'problem.delete', questionId: problem.questionId });
+    problemsState = problemsActor.getSnapshot();
+    expect(problemsState.context.past).toEqual(newPast);
+    expect(problemsState.context.problems).toEqual(newProblems);
+    expect(problemsState.context.furture).toEqual(nextFurture);
+    expect(problemActor.getSnapshot().status === 'stopped').toBe(true)
+  }
+
   test('create a problem', () => {
     const problemsActor = createActor(problemsMachine);
 
@@ -169,5 +189,21 @@ describe('test machines', () => {
     for (let i = 0; i < 20; i++) {
       master();
     }
+
+    // delete a random problem
+    for (let i = 0; i < 20; i++) {
+      deleteProblem();
+    }
+
+    // undo creations
+    for (let i = 0 ; i < 100; i++) {
+      undo();
+    }
+
+    // redo creations
+    for (let i = 0 ; i < 100; i++) {
+      redo();
+    }
+
   });
 });
