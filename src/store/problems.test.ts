@@ -71,6 +71,19 @@ describe('test machines', () => {
     expect(others).toEqual(newQuestion);
   }
 
+  function undo() {
+    problemsState = problemsActor.getSnapshot();
+    const newPast = problemsState.context.past.slice(0, problemsState.context.past.length - 1);
+    const newProblems = problemsState.context.past[problemsState.context.past.length - 1];
+    const nextFurture = [problemsState.context.problems, ...problemsState.context.furture];
+
+    problemsActor.send({ type: 'undo' });
+    problemsState = problemsActor.getSnapshot();
+    expect(problemsState.context.past).toEqual(newPast);
+    expect(problemsState.context.problems).toEqual(newProblems);
+    expect(problemsState.context.furture).toEqual(nextFurture);
+  }
+
   test('create a problem', () => {
     const problemsActor = createActor(problemsMachine);
 
@@ -79,6 +92,11 @@ describe('test machines', () => {
     // start a new problem
     for (let i = 0; i < 100; i++) {
       create();
+    }
+
+    // undo creations
+    for (let i = 0 ; i < 50; i++) {
+      undo();
     }
   });
 });
