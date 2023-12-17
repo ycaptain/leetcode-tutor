@@ -1,4 +1,4 @@
-import { ActorRefFrom, assign, createMachine } from "xstate";
+import { ActorRefFrom, assign, createMachine, stopChild } from "xstate";
 import { type Question, type LeetCodeQuestion, problemMachine, ProblemMachineType } from './problem';
 
 export const problemsMachine = createMachine(
@@ -130,7 +130,26 @@ export const problemsMachine = createMachine(
           }
         }),
       },
-      "problem.delete": {},
+      "problem.delete": {
+        actions: [stopChild(({context, event}) => {
+          const machineIdx = context.problemMachines.findIndex(p => p.id === `problem-${event.questionId}`);
+          return context.problemMachines[machineIdx].id;
+        }), assign(({context, event}) => {
+          const machineIdx = context.problemMachines.findIndex(p => p.id === `problem-${event.questionId}`);
+
+          const newPast = [...context.past, context.problems];
+          const newProblems = [...context.problems.slice(0, machineIdx), ...context.problems.slice(machineIdx + 1)];
+          context.problemMachines = [...context.problemMachines.slice(0, machineIdx), ...context.problemMachines.slice(machineIdx + 1)];
+          const newFuture: Question[][] = [];
+
+          return {
+            past: newPast,
+            problems: newProblems,
+            furture: newFuture,
+            problemMachines: context.problemMachines
+          }
+        })],
+      },
     },
     types: {
       events: {} as
