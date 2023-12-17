@@ -122,6 +122,24 @@ describe('test machines', () => {
     expect(problemsState.context.furture).toEqual(nextFurture);
   }
 
+  function master() {
+    problemsState = problemsActor.getSnapshot();
+
+    const problemIdx = getRandomInt(0, problemsState.context.problems.length - 1);
+    const problem = problemsState.context.problems[problemIdx];
+
+    const newPast = [...problemsState.context.past, problemsState.context.problems];
+    const newProblems = [...problemsState.context.problems];
+    const nextFurture: Question[] = [];
+
+    problemsActor.send({ type: 'problem.master', questionId: problem.questionId });
+    problemsState = problemsActor.getSnapshot();
+
+    expect(problemsState.context.past).toEqual(newPast);
+    expect(problemsState.context.furture).toEqual(nextFurture);
+    expect(problemsState.context.problems).toEqual(newProblems);
+  }
+
   test('create a problem', () => {
     const problemsActor = createActor(problemsMachine);
 
@@ -145,6 +163,11 @@ describe('test machines', () => {
     // train a random problem
     for (let i = 0; i < 1000; i++) {
       train();
+    }
+
+    // master a random problem
+    for (let i = 0; i < 20; i++) {
+      master();
     }
   });
 });
