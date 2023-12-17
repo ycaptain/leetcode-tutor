@@ -3,7 +3,7 @@ import { type Question, type LeetCodeQuestion, problemMachine, ProblemMachineTyp
 
 export const problemsMachine = createMachine(
   {
-    /** @xstate-layout N4IgpgJg5mDOIC5QAUBOB7ARgGzAW1gGIBXAOwnQG0AGAXUVAAd1YBLAF1fVIZAA9EAFgCsAOgCMAdgDMADgBMk4QE5Jk8QDZ5wgDQgAnomnCNowdXnTFqjeOXVxAX0d60WXAUKpIVOr2ZsnNy8AggiEjIKSqrqWsKCeoYI8rYSiiqCshYyKs6uGDj4RIwFHqKw7ACGqOw09EggARxcPA2h8tSi1BrS4pnSktQDmZIaiYjy4uKi0hbUSrKCk7KykoJ5IG6FniXu+KLesGC1fg1NQa2goeKyopLa2moaz+bz4wia04KjwiYrmoJxCYNlsPMVSvs8JUKmBUHV-CxmsE2ohxPJ3lNphphOIhpJlJNqMpBAMQRCduTROxUJVWKR4WdERcQhNOlkOrJhDJsRlRu9UgpfjdlBpqPF1LINGS9hSZaIIGBcOwwAymEyWiyPoJRCYbjjBKK1sJemMDKj5M4XCBSOgFfAGqCigjAhqUQhpKYRWtBIIbBoVtJpO8RKYNGpulNfRofSlLY4gA */
+    /** @xstate-layout N4IgpgJg5mDOIC5QAUBOB7ARgGzAW1gGIBXAOwnQG0AGAXUVAAd1YBLAF1fVIZAA9EAFgCsAOgCMAdgDMADmkA2aQE5By4cNmyANCACeQ5ZIkAmJYPHDBCwbOomAvg91osuAoVSQqdXszac3LwCCCISMvJKquqakroGodTiorLC4gomihpSgopOLhg4+ESMhe6iAMZeAIbsYDT0SCD+HFw8TSHigqImgiaygoKSVuJm4soK8YjS1AqiwpIKkSazkoLUgvkgrkUepW74ol6w7NWo7A1+LK1BHYijKeJy1AMZUv2WUwgmwnPDT9RJL1ZMoTMMFFsdu4SmVDscwBdfE0WoF2qBOrJREDhGZhICZAtFNIvulkkMFBoRJJlNQFhlIbC9ozRHhqicwKhLsjrqjgvcTCTxMkKeJ7L8TKNBrIGQcmbLROxUNVWKQuUweW0+d9qCl7C8FDTpBY5NI4vpEApkrIfmoFHajdJxtLnNtGTD5RAwLg6mrmhrbuj7t1fuJUoopELRRoSY4tqR0J74E0ocUrgFNXcEIpRBM1r9LUkrDIvsIjKJ1kL+spol1Y04gA */
     context: {
       past: [],
       furture: [],
@@ -34,7 +34,7 @@ export const problemsMachine = createMachine(
           }
         })
       },
-      "problem.start": {
+      "problem.create": {
         actions: assign(({context, event, spawn}) => {
           const newProblemMachine = spawn(problemMachine, {
             id: `problem-${event.question.questionId}`,
@@ -46,9 +46,12 @@ export const problemsMachine = createMachine(
           const snapshot = newProblemMachine.getSnapshot();
           const newProblem = snapshot.context;
 
-          const newPast = [...context.past, context.problems];
+          let newPast = [...context.past];
+          if (context.problems.length) {
+            newPast.push(context.problems);
+          }
           const newProblems = [...context.problems, newProblem];
-          const newFuture = [[]];
+          const newFuture: Question[][] = [];
           const newProblemMachines = [...context.problemMachines, newProblemMachine];
 
 
@@ -60,7 +63,31 @@ export const problemsMachine = createMachine(
           };
         })
       },
-      "problem.reset": {},
+      "problem.restart": {
+
+      },
+      "problem.reset": {
+        actions: assign(({context, event}) => {
+          const machineIdx = context.problemMachines.findIndex(p => p.id === `problem-${event.questionId}`);
+
+          const machine = context.problemMachines[machineIdx];
+          context.problemMachines[machineIdx].send({type: 'reset'});
+
+          const snapshot = machine.getSnapshot();
+          const newProblem = snapshot.context;
+
+          const newPast = [...context.past, context.problems];
+          const newProblems = [...context.problems.slice(0, machineIdx), newProblem, ...context.problems.slice(machineIdx+1)];
+          const newFuture: Question[][] = [];
+
+          return {
+            past: newPast,
+            problems: newProblems,
+            furture: newFuture,
+            problemMachines: context.problemMachines
+          }
+        }),
+      },
       "problem.master": {},
       "problem.train": {},
       "problem.delete": {},
@@ -69,11 +96,12 @@ export const problemsMachine = createMachine(
       events: {} as
         | { type: "undo" }
         | { type: "redo" }
-        | { type: "problem.start", question: LeetCodeQuestion; }
+        | { type: "problem.create", question: LeetCodeQuestion; }
+        | { type: "problem.restart", questionId: string; }
         | { type: "problem.reset", questionId: string; }
-        | { type: "problem.master" }
-        | { type: "problem.train" }
-        | { type: "problem.delete" },
+        | { type: "problem.master", questionId: string; }
+        | { type: "problem.train", questionId: string; }
+        | { type: "problem.delete", questionId: string; },
       context: {} as { past: Question[][]; furture: Question[][]; problems: Question[], problemMachines: ActorRefFrom<ProblemMachineType>[] },
     },
   },
