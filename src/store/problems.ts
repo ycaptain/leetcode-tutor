@@ -13,24 +13,55 @@ export const problemsMachine = createMachine(
     id: "Problems",
     on: {
       undo: {
-        actions: assign(({context}) => {
-          const prev = context.past[context.past.length - 1];
+        actions: assign(({ context, spawn }) => {
+          const newProblems = context.past[context.past.length - 1];
           const newPast = context.past.slice(0, context.past.length - 1);
+          const newProblemMachines:ActorRefFrom<ProblemMachineType>[]  = newProblems.map((p, idx) => {
+            const machineProblem = context.problemMachines[idx]?.getSnapshot()?.context;
+            if (p.questionId === machineProblem?.questionId) {
+              return context.problemMachines[idx];
+            }
+
+            const newProblemMachine = spawn(problemMachine, {
+              id: `problem-${p.questionId}`,
+            });
+            newProblemMachine.start();
+
+            newProblemMachine.send({ type: 'start', question: p });
+            return newProblemMachine;
+          });
+
           return {
             past: newPast,
-            problems: prev,
-            furture: [context.problems, ...context.furture]
+            problems: newProblems,
+            furture: [context.problems, ...context.furture],
+            problemMachines: newProblemMachines
           }
         })
       },
       redo: {
-        actions: assign(({context}) => {
-          const next = context.furture[0];
+        actions: assign(({ context, spawn }) => {
+          const newProblems = context.furture[0];
           const newFuture = context.furture.slice(1);
+          const newProblemMachines:ActorRefFrom<ProblemMachineType>[]  = newProblems.map((p, idx) => {
+            const machineProblem = context.problemMachines[idx]?.getSnapshot()?.context;
+            if (p.questionId === machineProblem?.questionId) {
+              return context.problemMachines[idx];
+            }
+
+            const newProblemMachine = spawn(problemMachine, {
+              id: `problem-${p.questionId}`,
+            });
+            newProblemMachine.start();
+
+            newProblemMachine.send({ type: 'start', question: p });
+            return newProblemMachine;
+          });
           return {
             past: [...context.past, context.problems],
-            problems: next,
+            problems: newProblems,
             furture: newFuture,
+            problemMachines: newProblemMachines
           }
         })
       },
@@ -47,9 +78,7 @@ export const problemsMachine = createMachine(
           const newProblem = snapshot.context;
 
           let newPast = [...context.past];
-          if (context.problems.length) {
-            newPast.push(context.problems);
-          }
+          newPast.push(context.problems);
           const newProblems = [...context.problems, newProblem];
           const newFuture: Question[][] = [];
           const newProblemMachines = [...context.problemMachines, newProblemMachine];
@@ -64,14 +93,32 @@ export const problemsMachine = createMachine(
         })
       },
       "problem.restart": {
+        actions: assign(({context, event}) => {
+          const machineIdx = context.problemMachines.findIndex(p => p.id === `problem-${event.questionId}`);
+          const machine = context.problemMachines[machineIdx];
+          context.problemMachines[machineIdx].send({ type: 'train' });
 
+          const snapshot = machine.getSnapshot();
+          const newProblem = snapshot.context;
+
+          const newPast = [...context.past, context.problems];
+          const newProblems = [...context.problems.slice(0, machineIdx), newProblem, ...context.problems.slice(machineIdx + 1)];
+          const newFuture: Question[][] = [];
+
+          return {
+            past: newPast,
+            problems: newProblems,
+            furture: newFuture,
+            problemMachines: context.problemMachines
+          }
+        }),
       },
       "problem.reset": {
         actions: assign(({context, event}) => {
           const machineIdx = context.problemMachines.findIndex(p => p.id === `problem-${event.questionId}`);
 
           const machine = context.problemMachines[machineIdx];
-          context.problemMachines[machineIdx].send({type: 'reset'});
+          machine.send({type: 'reset'});
 
           const snapshot = machine.getSnapshot();
           const newProblem = snapshot.context;
