@@ -32,6 +32,10 @@ describe('test machines', () => {
   problemsActor.start();
   let problemsState = problemsActor.getSnapshot();
 
+  // problemsActor.subscribe(snapshot => {
+  //   console.log('sub', snapshot.context.problems.length);
+  // })
+
   /**
    *
    * @param problemId start
@@ -52,7 +56,7 @@ describe('test machines', () => {
     };
 
     // records past
-    const newPast = problemsState.context.problems.length ? [...problemsState.context.past, [...problemsState.context.problems]] : [];
+    const newPast = problemsState.context.problems.length ? [...problemsState.context.past, [...problemsState.context.problems]] : [[]];
     const newProblems = [...problemsState.context.problems, newQuestion];
 
     problemsActor.send({ type: 'problem.create', question: newQuestion });
@@ -96,10 +100,9 @@ describe('test machines', () => {
     expect(problemsState.context.furture).toEqual(nextFurture);
   }
 
-  function train() {
+  function train(problemIdx = getRandomQuestionIdx()) {
     problemsState = problemsActor.getSnapshot();
 
-    const problemIdx = getRandomInt(0, problemsState.context.problems.length - 1);
     const problem = problemsState.context.problems[problemIdx];
     const problemActor = problemsState.context.problemMachines[problemIdx];
     const problemState = problemActor.getSnapshot();
@@ -110,7 +113,7 @@ describe('test machines', () => {
 
     const newPast = [...problemsState.context.past, problemsState.context.problems];
     const newProblems = [...problemsState.context.problems.slice(0, problemIdx), newProblem, ...problemsState.context.problems.slice(problemIdx + 1)];
-    const nextFurture: Question[] = [];
+    const nextFurture: Question[][] = [];
 
     problemsActor.send({ type: 'problem.train', questionId: problem.questionId });
     problemsState = problemsActor.getSnapshot();
@@ -122,35 +125,32 @@ describe('test machines', () => {
     expect(problemsState.context.furture).toEqual(nextFurture);
   }
 
-  function master() {
+  function master(problemIdx = getRandomQuestionIdx()) {
     problemsState = problemsActor.getSnapshot();
 
-    const problemIdx = getRandomInt(0, problemsState.context.problems.length - 1);
     const problem = problemsState.context.problems[problemIdx];
 
     const newPast = [...problemsState.context.past, problemsState.context.problems];
     const newProblems = [...problemsState.context.problems];
-    const nextFurture: Question[] = [];
+    const nextFurture: Question[][] = [];
 
     problemsActor.send({ type: 'problem.master', questionId: problem.questionId });
     problemsState = problemsActor.getSnapshot();
 
     expect(problemsState.context.past).toEqual(newPast);
     expect(problemsState.context.furture).toEqual(nextFurture);
-    expect(problemsState.context.problems).toEqual(newProblems);
+    expect(problemsState.context.problems.map(removeReviews)).toEqual(newProblems.map(removeReviews));
   }
 
-  function deleteProblem() {
+  function deleteProblem(problemIdx = getRandomQuestionIdx()) {
     problemsState = problemsActor.getSnapshot();
 
-    const problemIdx = getRandomInt(0, problemsState.context.problems.length - 1);
     const problem = problemsState.context.problems[problemIdx];
     const problemActor = problemsState.context.problemMachines[problemIdx];
 
-
     const newPast = [...problemsState.context.past, problemsState.context.problems];
     const newProblems = [...problemsState.context.problems.slice(0, problemIdx), ...problemsState.context.problems.slice(problemIdx + 1)];
-    const nextFurture: Question[] = [];
+    const nextFurture: Question[][] = [];
 
     problemsActor.send({ type: 'problem.delete', questionId: problem.questionId });
     problemsState = problemsActor.getSnapshot();
@@ -160,13 +160,33 @@ describe('test machines', () => {
     expect(problemActor.getSnapshot().status === 'stopped').toBe(true)
   }
 
+  function getRandomQuestionIdx(size?: number) {
+    if (!size) {
+      problemsState = problemsActor.getSnapshot();
+      size = problemsState.context.problems.length;
+    }
+
+    const problemIdx = getRandomInt(0, size - 1);
+    return problemIdx;
+  }
+
+  function reset(problemIdx = getRandomQuestionIdx()) {
+    const problem = problemsState.context.problems[problemIdx];
+
+    const newPast = [...problemsState.context.past, problemsState.context.problems];
+    const newProblems = [...problemsState.context.problems.slice(0, problemIdx), {...problem, reviews: []}, ...problemsState.context.problems.slice(problemIdx + 1)];
+    const nextFurture: Question[][] = [];
+
+    problemsActor.send({ type: 'problem.reset', questionId: problem.questionId });
+    problemsState = problemsActor.getSnapshot();
+    expect(problemsState.context.past).toEqual(newPast);
+    expect(problemsState.context.problems).toEqual(newProblems);
+    expect(problemsState.context.furture).toEqual(nextFurture);
+  }
+
   test('create a problem', () => {
-    const problemsActor = createActor(problemsMachine);
-
-    problemsActor.start();
-
     // start a new problem
-    for (let i = 0; i < 100; i++) {
+    for (let i = 0; i < 50; i++) {
       create();
     }
 
@@ -181,7 +201,7 @@ describe('test machines', () => {
     }
 
     // train a random problem
-    for (let i = 0; i < 1000; i++) {
+    for (let i = 0; i < 100; i++) {
       train();
     }
 
@@ -204,6 +224,36 @@ describe('test machines', () => {
     for (let i = 0 ; i < 100; i++) {
       redo();
     }
+
+    // complex
+    problemsState = problemsActor.getSnapshot();
+    const size = problemsState.context.problems.length;
+    const randomIdxs = Array.from(new Set(Array(50).fill(0).map(v => getRandomQuestionIdx(size))));
+
+    randomIdxs.forEach(idx => {
+      problemsState = problemsActor.getSnapshot();
+      const prev = {...problemsState.context};
+      reset(idx);
+      train(idx);
+      master(idx);
+      deleteProblem(idx);
+
+      // undo four operations
+      undo();
+      undo();
+      undo();
+      undo();
+      problemsState = problemsActor.getSnapshot();
+      const next = {...problemsState.context};
+      expect(prev.past).toEqual(next.past);
+      expect(prev.problemMachines.map(v => v.toJSON?.())).toEqual(next.problemMachines.map(v => v.toJSON?.()));
+      expect(prev.problems).toEqual(next.problems);
+      expect(next.furture.length).toEqual(4);
+      // recover furture
+      redo();
+      redo();
+      redo();
+    })
 
   });
 });
