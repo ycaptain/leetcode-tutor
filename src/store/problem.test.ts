@@ -78,15 +78,14 @@ describe('test problem machine', () => {
 
 
   test('go through a problem', () => {
+    // start a problem
+    start();
     for (let i = 0; i < 10; i++) {
-      // start a problem
-      start();
-
       // reset a problem from training
       reset();
 
-      // restart a problem from idle
-      start();
+      // train a problem from idle
+      train();
 
       // train a problem in training
       train();
