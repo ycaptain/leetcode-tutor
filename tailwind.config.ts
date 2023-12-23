@@ -5,6 +5,7 @@ export default {
     "./src/**/*.{js,jsx,ts,tsx}",
   ],
   presets: [],
+  important: true,
   darkMode: 'media', // or 'class'
   theme: {
     accentColor: ({ theme }) => ({
@@ -991,6 +992,6 @@ export default {
       50: '50',
     },
   },
-  plugins: [],
+  plugins: [require('@tailwindcss/typography')],
 } satisfies Config
 

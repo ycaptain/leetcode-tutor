@@ -32,7 +32,7 @@ export function Tabs(props: TabsProps) {
                 props.onChange?.(child.key!);
               }}
             >
-              <label className="mx-6 my-3 cursor-pointer">
+              <label className="mx-3 my-2 cursor-pointer">
                 {child.props.title}
               </label>
             </div>

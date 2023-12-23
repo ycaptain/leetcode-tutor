@@ -33,8 +33,6 @@ export function ProblemList(_props: ProblemListProps) {
       : undefined,
   );
 
-  console.log('problemSnapshot', problemSnapshot, problemsActor);
-
   React.useEffect(() => {
     problemsActor.subscribe((state) => {
       const problems = problemsActor.getSnapshot();

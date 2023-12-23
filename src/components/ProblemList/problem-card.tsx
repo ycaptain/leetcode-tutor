@@ -12,7 +12,7 @@ export function ProblemCard(props: ProblemCardProps) {
 
   console.log('state', state.questionId, state);
   return (
-    <div className="bg-white rounded-lg p-4">
+    <div className="bg-white rounded-lg p-4 shadow hover:shadow-lg cursor-pointer">
       <div className="flex flex-col justify-between">
         <div className="flex flex-row justify-between items-baseline">
           <label className="font-bold truncate mr-4">{`${state.questionId}. ${state.title}`}</label>
@@ -20,7 +20,6 @@ export function ProblemCard(props: ProblemCardProps) {
         </div>
         <div className="flex flex-row justify-between mt-4">
           <div className="flex">
-            <p className="mr-2 text-[#C6CAD5]">Complexity</p>
             <p className="text-[#FFCC56]">Medium</p>
           </div>
           <div className="flex items-center text-lg">
