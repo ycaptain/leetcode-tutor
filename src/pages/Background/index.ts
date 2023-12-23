@@ -1,36 +1,24 @@
-// console.log('background')
-// chrome.browserAction?.onClicked.addListener(function(tab){
-//   if (tab.id) {
-//     chrome.tabs.sendMessage(tab.id, "toggle");
-//     (chrome as any).sidePanel.setOptions({
-//       tab,
-//       path: 'popup.html',
-//       enabled: true
-//     });
+console.log('Background start!!!!!!!');
+chrome.sidePanel.setPanelBehavior({ openPanelOnActionClick: true });
 
-//   }
-// });
-
-const GOOGLE_ORIGIN = 'https://www.google.com';
-chrome.sidePanel
-  .setPanelBehavior({ openPanelOnActionClick: true })
-  .catch((error) => console.error(error));
-
-chrome.tabs.onUpdated.addListener(async (tabId, info, tab) => {
-  if (!tab.url) return;
-  const url = new URL(tab.url);
-  // Enables the side panel on google.com
-  if (url.origin === GOOGLE_ORIGIN) {
-    await chrome.sidePanel.setOptions({
-      tabId,
-      path: 'sidepanel.html',
-      enabled: true
-    });
-  } else {
-    // Disables the side panel on all other sites
-    await chrome.sidePanel.setOptions({
-      tabId,
-      enabled: false
-    });
-  }
-});
+// TODO: request listener not work
+// chrome.webRequest.onAuthRequired.addListener(
+//   (details) => {
+//     console.log('An authorization request has been detected');
+//     if (details.url === 'https://httpbin.org/basic-auth/guest/guest') {
+//       // Creating some credentials
+//       const username = 'guest1';
+//       const password = 'guest2';
+//       // Creating an auth handler to use the credentials
+//       const authCredentials = {
+//         authCredentials: {
+//           username: username,
+//           password: password
+//         }
+//       };
+//       // callback(authCredentials);
+//     }
+//   },
+//   { urls: ['https://httpbin.org/basic-auth/guest/guest'] },
+//   ['asyncBlocking']
+// );
