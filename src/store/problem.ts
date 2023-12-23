@@ -1,4 +1,4 @@
-import { assign, createMachine } from "xstate";
+import { assign, createMachine } from 'xstate';
 
 export interface LeetCodeQuestion {
   questionId: string;
@@ -20,90 +20,101 @@ export interface Question extends LeetCodeQuestion {
 }
 
 const defaultQuestion: Question = {
-  questionId: "0",
-  questionFrontendId: "0",
-  title: "",
-  titleSlug: "",
+  questionId: '0',
+  questionFrontendId: '0',
+  title: '',
+  titleSlug: '',
   isPaidOnly: false,
-  difficulty: "Easy",
+  difficulty: 'Easy',
   likes: 0,
   dislikes: 0,
-  categoryTitle: "Algorithms",
+  categoryTitle: 'Algorithms',
   reviews: [],
 } as const;
 
-/** @xstate-layout N4IgpgJg5mDOIC5QAcBOB7ARgGzAWwDp9kAXATwGJYSBDVEgbQAYBdRFdWASxK-QDt2IAB6IAjEzEEAbGIBMcgCwBmAOxiAnBtUAOOaoA0IMojk7FBcwFYNTaeYlM5ygL4ujaLLkJcIuCiSoNFz8zGxIIMicPHyCEaIIijoaBEzJuqrSytJWTJJGJgg6VgRy0hpWykyZtopMimJuHhg4+ASBwfwhUAFBIWFCUdy8AkIJYtKqlnkainJWVnNlTMoFiMraBKoKYio6qjYKZU2RLd7tfV38PXg01GCoAxFDMaPx65MEVts69rN18nMawQyjEU1B+3Uc0UKiqqhOnlahA6IW6FFQcDAjFYg2iIzioASSRSaW0snMaQaE2BMOUpWkK12NgWOmUcgRZzat3uGIgvU6Tw4w1iY0QxNS6XJdQcYmBcgkBDEoLMVnlWRyrncpy8XLuJAekHRmOx4SFrwJIkQDJ0Mk0yjZqlm2hWwKqcgIymhKx0elUVV2bi1-HQEDgg05eFxwrehMQAFppBYNvYGRpzBp5RpZcZ4+6mJU1Dpqmy6p7vhydYRiOQo+bRQg4xMPRoU0w04oM5oxFZXdVSspzFl5Kr6hpNc1KwRfLha-j6366bk5Gl80X-TpgWJNKUVuUKmoJBJFBWkRdOt1ZyL3ghnNJUvo6nItPZdBVXU205Mn6oVisT+duX1XlLxjS1EiLGQrH2Iss30NRpFdJQtk9Z8zDSBYwUDFwgA */
-export const problemMachine = createMachine(
-  {
-    initial: "empty",
-    id: "problem",
-    context: JSON.parse(JSON.stringify(defaultQuestion)),
-    states: {
-      empty: {
-        on: {
-          start: {
-            target: "training",
-            reenter: true,
-            actions: assign(({ event }) => {
-              const now = Date.now();
-              return  {
-                ...event.question,
-                reviews: [now],
-              } satisfies Question
-            }),
-          },
-        },
-      },
-      idle: {
-        on: {
-          train: {
-            target: "training",
-            actions: assign({
-              reviews: (ctx) => [...ctx.context.reviews, Date.now()]
-            }),
-          },
-        },
-      },
-      training: {
-        on: {
-          train: {
-            target: "training",
-            actions: assign({
-              reviews: (ctx) => [...ctx.context.reviews, Date.now()]
-            }),
-          },
-          master: {
-            target: "mastered",
-          },
-          reset: {
-            target: "idle",
-            actions: assign({
-              reviews: () => []
-            }),
-          },
-        },
-      },
-      mastered: {
-        on: {
-          train: {
-            actions: assign({
-              reviews: (ctx) => [...ctx.context.reviews, Date.now()]
-            }),
-          },
-          reset: {
-            target: "idle",
-            actions: assign({
-              reviews: () => []
-            }),
-          },
+/** @xstate-layout N4IgpgJg5mDOIC5QAcBOB7ARgGzAWwDp9kAXATwGJYSBDVEgbQAYBdRFdWASxK-QDt2IAB6IAjEzEEAbGIBMcgCwBmAOxiAnBtUAOOaoA0IMojk7FBcwFYNTaeYlM5ygL4ujaLLkKowNCJQkqDRc-MxsSCDInDx8gpGiCIo6GgRMKbqq0srSVkySRiYIOlYEctIaVspMWbaKTIpibh4YOPgEQSH8oVAUnaHhQtHcvAJCiWLSqpb5GopyVlbz5UzKhYjK2gSqCmIqOqo2CuXNUa3eHcGhPRR4NNRgqIORw7FjCRtTBFY7OvZz9Xk5nWCGUYmmYIO6nmihU1VUp08bUI-W6-F6vlgYEYrCGMVG8VAiWSqXS2lk5nSjUmINhyjK0lWexsix0yjkiPO7VRNwAxgALMC8gDWzw4Izi41M9QImnqFUmhwO4JBAFowQRtBpNgCUlYoa53GcvO07g9fBA+lcwriXvjJR8kik0hkKfUHGIQXIJLKwWYrN7srlDS0TYQzSRHpAKJjsWKovb3kTEIydDJNMp2ao5tpViDqnICMoYasdHpVNU9m4jfx0BA4EMuXg8RKkyJEKrpBZNvZGRpzBpvRpPcYO2JNEWnGC1HY9NVFJyw0Q8KQiuK3oT2whVZMixpe0x+4pB5oxFZ8zUyspzNl5AGGtrF8iCL5-GuE63N4kK-S8nJ0kw+qrJIOgguOqT-jkWhVOokgNE+Fw8uiLYblKCDONIaT6PUchaPYuiVPmu79lMuGqMBIbGs+EZRhAKEEmhyRMDI+q6Ie8gVlk+ZKNsxZ4WY6SLOC1YuEAA */
+export const problemMachine = createMachine({
+  initial: 'empty',
+  id: 'problem',
+  context: JSON.parse(JSON.stringify(defaultQuestion)),
+  states: {
+    empty: {
+      on: {
+        start: {
+          target: 'training',
+          reenter: true,
+          actions: assign(({ event }) => {
+            const now = Date.now();
+            return {
+              ...event.question,
+              reviews: [now],
+            } satisfies Question;
+          }),
         },
       },
     },
-    types: {
-      events: {} as { type: "reset" } | { type: "start", question: LeetCodeQuestion } | { type: "train" } | { type: "master" },
-      context: {} as Question,
+    ready: {
+      on: {
+        train: {
+          target: 'training',
+          actions: assign({
+            reviews: (ctx) => [...ctx.context.reviews, Date.now()],
+          }),
+        },
+      },
     },
-  }
-);
+
+    training: {
+      on: {
+        train: {
+          target: 'training',
+          actions: assign({
+            reviews: (ctx) => [...ctx.context.reviews, Date.now()],
+          }),
+        },
+        master: {
+          target: 'mastered',
+        },
+        reset: {
+          target: 'ready',
+          actions: assign({
+            reviews: () => [],
+          }),
+        },
+        check: {
+          guard: ({ context }) => context.reviews.length < 3,
+          target: 'ready',
+        },
+      },
+    },
+
+    mastered: {
+      on: {
+        train: {
+          actions: assign({
+            reviews: (ctx) => [...ctx.context.reviews, Date.now()],
+          }),
+        },
+        reset: {
+          target: 'ready',
+          actions: assign({
+            reviews: () => [],
+          }),
+        },
+      },
+    },
+  },
+  types: {
+    // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
+    events: {} as
+      | { type: 'reset' }
+      | { type: 'start'; question: LeetCodeQuestion }
+      | { type: 'train' }
+      | { type: 'master' }
+      | { type: 'check' },
+    // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
+    context: {} as Question,
+  },
+});
 
 export type ProblemMachineType = typeof problemMachine;

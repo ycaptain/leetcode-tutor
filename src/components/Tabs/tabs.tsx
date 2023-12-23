@@ -1,23 +1,23 @@
-import * as React from 'react'
-import { TabPane, type TabPaneProps, type TabPaneType } from './tab-pane'
-import clsx from 'clsx'
+import * as React from 'react';
+import { TabPane, type TabPaneProps, type TabPaneType } from './tab-pane';
+import clsx from 'clsx';
 export interface TabsProps {
-  children: Array<React.ReactElement<TabPaneProps, TabPaneType>>
-  activeTab: string
+  children: Array<React.ReactElement<TabPaneProps, TabPaneType>>;
+  activeTab: string;
   /**
    * Callback when `activeTab` changed
    */
-  onChange?: (key: string) => void
+  onChange?: (key: string) => void;
 }
 
-const TabsIdPrefix = 'tabs-'
+const TabsIdPrefix = 'tabs-';
 
 export function Tabs(props: TabsProps) {
   return (
     <div className="flex flex-col">
       <div className="flex flex-row overflow-auto overscroll-none hide-scrollbar">
         {props.children.map((child, index) => {
-          const isActive = child.key === props.activeTab
+          const isActive = child.key === props.activeTab;
           return (
             <div
               key={index}
@@ -27,22 +27,22 @@ export function Tabs(props: TabsProps) {
                 {
                   'bg-[#F6F8FC] text-[#323544] font-bold rounded-t-lg':
                     isActive,
-                  'text-[#C6CAD5]': !isActive
-                }
+                  'text-[#C6CAD5]': !isActive,
+                },
               )}
               onClick={() => {
-                props.onChange?.(child.key!)
+                props.onChange?.(child.key!);
               }}
             >
               <label className="mx-6 my-3">{child.props.title}</label>
             </div>
-          )
+          );
         })}
       </div>
       <div className="bg-[#F6F8FC]">
         {props.children.map((child, index) => {
-          const isActive = child.key === props.activeTab
-          const tab = `${TabsIdPrefix}-tab-${index}`
+          const isActive = child.key === props.activeTab;
+          const tab = `${TabsIdPrefix}-tab-${index}`;
           return (
             <div
               key={child.key}
@@ -53,16 +53,16 @@ export function Tabs(props: TabsProps) {
             >
               {child}
             </div>
-          )
+          );
         })}
       </div>
     </div>
-  )
+  );
 }
 
 export function TestTabs() {
-  const [activeTab, setActiveTab] = React.useState('1')
-  console.log('ac', activeTab)
+  const [activeTab, setActiveTab] = React.useState('1');
+  console.log('ac', activeTab);
   return (
     <Tabs activeTab={activeTab} onChange={setActiveTab}>
       <TabPane key="1" title="Recommend">
@@ -81,5 +81,5 @@ export function TestTabs() {
         <p>5</p>
       </TabPane>
     </Tabs>
-  )
+  );
 }

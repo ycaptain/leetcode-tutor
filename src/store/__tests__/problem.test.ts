@@ -1,17 +1,17 @@
-import {describe, test, expect } from '@jest/globals';
+import { describe, test, expect } from '@jest/globals';
 import { createActor } from 'xstate';
-import { LeetCodeQuestion, problemMachine } from './problem';
+import { type LeetCodeQuestion, problemMachine } from '../problem';
 
 const question1: LeetCodeQuestion = {
-  questionId: "26",
-  questionFrontendId: "26",
-  title: "Remove Duplicates from Sorted Array",
-  titleSlug: "remove-duplicates-from-sorted-array",
+  questionId: '26',
+  questionFrontendId: '26',
+  title: 'Remove Duplicates from Sorted Array',
+  titleSlug: 'remove-duplicates-from-sorted-array',
   isPaidOnly: false,
-  difficulty: "Easy",
+  difficulty: 'Easy',
   likes: 13301,
   dislikes: 17570,
-  categoryTitle: "Algorithms"
+  categoryTitle: 'Algorithms',
 } as const;
 
 describe('test problem machine', () => {
@@ -24,7 +24,7 @@ describe('test problem machine', () => {
 
   function start() {
     past = Date.now();
-    problemActor.send({ type: 'start', question: question1});
+    problemActor.send({ type: 'start', question: question1 });
     problemState = problemActor.getSnapshot();
     now = Date.now();
 
@@ -51,13 +51,13 @@ describe('test problem machine', () => {
       ({ reviews, ...others } = problemState.context);
       now = Date.now();
 
-      expect(reviews.length).toEqual(i+1);
+      expect(reviews.length).toEqual(i + 1);
       expect(reviews[i] >= past).toBe(true);
       expect(reviews[i] <= now).toBe(true);
     }
 
     let prevReview = reviews[0];
-    const incresing = reviews.every(review => {
+    const incresing = reviews.every((review) => {
       const isIncreasing = review >= prevReview;
       prevReview = review;
       return isIncreasing;
@@ -66,7 +66,7 @@ describe('test problem machine', () => {
   }
 
   function master() {
-    let prevLength = reviews.length;
+    const prevLength = reviews.length;
     past = Date.now();
     problemActor.send({ type: 'master' });
     problemState = problemActor.getSnapshot();
@@ -75,7 +75,6 @@ describe('test problem machine', () => {
 
     expect(reviews.length).toEqual(prevLength);
   }
-
 
   test('go through a problem', () => {
     // start a problem
