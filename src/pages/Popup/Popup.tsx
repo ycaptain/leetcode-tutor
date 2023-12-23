@@ -41,7 +41,7 @@ function Popup() {
   });
 
   return (
-    <div className="h-screen flex flex-col">
+    <div className="h-screen flex flex-col overflow-auto overscroll-none hide-scrollbar">
       <h1 className="text-3xl font-bold underline">Hello world!</h1>
       <TestTabs />
     </div>

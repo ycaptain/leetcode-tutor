@@ -15,18 +15,16 @@ const TabsIdPrefix = 'tabs-';
 export function Tabs(props: TabsProps) {
   return (
     <div className="flex flex-col flex-1">
-      <div className="flex flex-row overflow-auto overscroll-none hide-scrollbar">
+      <div className="flex flex-row overflow-auto overscroll-none hide-scrollbar sticky top-0 bg-white select-none">
         {props.children.map((child, index) => {
           const isActive = child.key === props.activeTab;
           return (
             <div
               key={index}
               className={clsx(
-                'flex items-center h-fit',
-                'hover:bg-[#F6F8FC] hover:text-[#323544] hover:font-bold hover:rounded-t-lg',
+                'flex items-center h-fit font-bold cursor-pointer hover:bg-[#F6F8FC] hover:text-[#323544] hover:font-bold hover:rounded-t-lg',
                 {
-                  'bg-[#F6F8FC] text-[#323544] font-bold rounded-t-lg':
-                    isActive,
+                  'bg-[#F6F8FC] text-[#323544] rounded-t-lg': isActive,
                   'text-[#C6CAD5]': !isActive,
                 },
               )}
@@ -34,12 +32,14 @@ export function Tabs(props: TabsProps) {
                 props.onChange?.(child.key!);
               }}
             >
-              <label className="mx-6 my-3">{child.props.title}</label>
+              <label className="mx-6 my-3 cursor-pointer">
+                {child.props.title}
+              </label>
             </div>
           );
         })}
       </div>
-      <div className="bg-[#F6F8FC] flex-1">
+      <div className="bg-[#F6F8FC]">
         {props.children.map((child, index) => {
           const isActive = child.key === props.activeTab;
           const tab = `${TabsIdPrefix}-tab-${index}`;
