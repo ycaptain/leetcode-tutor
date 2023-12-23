@@ -1,5 +1,5 @@
 import { describe, test, expect } from '@jest/globals';
-import { type Snapshot, createActor } from 'xstate';
+import { createActor } from 'xstate';
 import {
   type ProblemMachineSnapshot,
   problemsMachine,
@@ -346,6 +346,7 @@ describe('test machines', () => {
       problemsSnapshot = problemsActor.getSnapshot();
       const prev = { ...problemsSnapshot.context };
       reset(idx);
+      // restart
       train(idx);
       master(idx);
       deleteProblem(idx);

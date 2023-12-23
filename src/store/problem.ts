@@ -43,13 +43,10 @@ export const problemMachine = createMachine({
         start: {
           target: 'training',
           reenter: true,
-          actions: assign(({ event }) => {
-            const now = Date.now();
-            return {
-              ...event.question,
-              reviews: [now],
-            } satisfies Question;
-          }),
+          actions: assign(({ event }) => ({
+            ...event.question,
+            reviews: [Date.now()],
+          })),
         },
       },
     },
@@ -58,7 +55,7 @@ export const problemMachine = createMachine({
         train: {
           target: 'training',
           actions: assign({
-            reviews: (ctx) => [...ctx.context.reviews, Date.now()],
+            reviews: () => [Date.now()],
           }),
         },
       },
@@ -80,10 +77,6 @@ export const problemMachine = createMachine({
           actions: assign({
             reviews: () => [],
           }),
-        },
-        check: {
-          guard: ({ context }) => context.reviews.length < 3,
-          target: 'ready',
         },
       },
     },
@@ -110,8 +103,7 @@ export const problemMachine = createMachine({
       | { type: 'reset' }
       | { type: 'start'; question: LeetCodeQuestion }
       | { type: 'train' }
-      | { type: 'master' }
-      | { type: 'check' },
+      | { type: 'master' },
     // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
     context: {} as Question,
   },
