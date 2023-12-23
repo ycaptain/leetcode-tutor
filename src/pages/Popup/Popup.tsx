@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import './index.css';
 import Tabs, { TabPane } from '../../components/Tabs';
-import { TestProblemList } from '../../components/ProblemList/problem-list';
+import { ProblemList } from '../../components/ProblemList/problem-list';
 
 function TestTabs() {
   const [activeTab, setActiveTab] = React.useState('1');
@@ -9,7 +9,7 @@ function TestTabs() {
   return (
     <Tabs activeTab={activeTab} onChange={setActiveTab}>
       <TabPane key="1" title="Recommend">
-        <p>12</p>
+        <ProblemList />
       </TabPane>
       <TabPane key="2" title="Today">
         <p>2</p>
@@ -41,10 +41,9 @@ function Popup() {
   });
 
   return (
-    <div>
+    <div className="h-screen flex flex-col">
       <h1 className="text-3xl font-bold underline">Hello world!</h1>
       <TestTabs />
-      <TestProblemList />
     </div>
   );
 }

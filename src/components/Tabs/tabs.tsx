@@ -14,7 +14,7 @@ const TabsIdPrefix = 'tabs-';
 
 export function Tabs(props: TabsProps) {
   return (
-    <div className="flex flex-col">
+    <div className="flex flex-col flex-1">
       <div className="flex flex-row overflow-auto overscroll-none hide-scrollbar">
         {props.children.map((child, index) => {
           const isActive = child.key === props.activeTab;
@@ -39,7 +39,7 @@ export function Tabs(props: TabsProps) {
           );
         })}
       </div>
-      <div className="bg-[#F6F8FC]">
+      <div className="bg-[#F6F8FC] flex-1">
         {props.children.map((child, index) => {
           const isActive = child.key === props.activeTab;
           const tab = `${TabsIdPrefix}-tab-${index}`;

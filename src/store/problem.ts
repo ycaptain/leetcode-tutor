@@ -33,7 +33,7 @@ const defaultQuestion: Question = {
 } as const;
 
 /** @xstate-layout N4IgpgJg5mDOIC5QAcBOB7ARgGzAWwDp9kAXATwGJYSBDVEgbQAYBdRFdWASxK-QDt2IAB6IAjEzEEAbGIBMcgCwBmAOxiAnBtUAOOaoA0IMojk7FBcwFYNTaeYlM5ygL4ujaLLkKowNCJQkqDRc-MxsSCDInDx8gpGiCIo6GgRMKbqq0srSVkySRiYIOlYEctIaVspMWbaKTIpibh4YOPgEQSH8oVAUnaHhQtHcvAJCiWLSqpb5GopyVlbz5UzKhYjK2gSqCmIqOqo2CuXNUa3eHcGhPRR4NNRgqIORw7FjCRtTBFY7OvZz9Xk5nWCGUYmmYIO6nmihU1VUp08bUI-W6-F6vlgYEYrCGMVG8VAiWSqXS2lk5nSjUmINhyjK0lWexsix0yjkiPO7VRNwAxgALMC8gDWzw4Izi41M9QImnqFUmhwO4JBAFowQRtBpNgCUlYoa53GcvO07g9fBA+lcwriXvjJR8kik0hkKfUHGIQXIJLKwWYrN7srlDS0TYQzSRHpAKJjsWKovb3kTEIydDJNMp2ao5tpViDqnICMoYasdHpVNU9m4jfx0BA4EMuXg8RKkyJEKrpBZNvZGRpzBpvRpPcYO2JNEWnGC1HY9NVFJyw0Q8KQiuK3oT2whVZMixpe0x+4pB5oxFZ8zUyspzNl5AGGtrF8iCL5-GuE63N4kK-S8nJ0kw+qrJIOgguOqT-jkWhVOokgNE+Fw8uiLYblKCDONIaT6PUchaPYuiVPmu79lMuGqMBIbGs+EZRhAKEEmhyRMDI+q6Ie8gVlk+ZKNsxZ4WY6SLOC1YuEAA */
-export const problemMachine = createMachine({
+export const ProblemMachine = createMachine({
   initial: 'empty',
   id: 'problem',
   context: JSON.parse(JSON.stringify(defaultQuestion)),
@@ -109,4 +109,4 @@ export const problemMachine = createMachine({
   },
 });
 
-export type ProblemMachineType = typeof problemMachine;
+export type ProblemMachineType = typeof ProblemMachine;

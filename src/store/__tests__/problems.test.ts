@@ -6,10 +6,11 @@ import {
   problemMachineToPersistentSnapshot,
 } from '../problems';
 import {
-  problemMachine,
+  ProblemMachine,
   type LeetCodeQuestion,
   type Question,
 } from '../problem';
+import { getRandomInt } from '../../utils/random';
 
 const question1: LeetCodeQuestion = {
   questionId: '26',
@@ -22,12 +23,6 @@ const question1: LeetCodeQuestion = {
   dislikes: 17570,
   categoryTitle: 'Algorithms',
 } as const;
-
-function getRandomInt(min: number, max: number) {
-  min = Math.ceil(min);
-  max = Math.floor(max);
-  return Math.floor(Math.random() * (max - min + 1)) + min;
-}
 
 function removeReviews(question: Question) {
   const newQuestion = { ...question };
@@ -117,7 +112,7 @@ describe('test machines', () => {
     );
     const newProblemMachines = problemsSnapshot.context.past[
       problemsSnapshot.context.past.length - 1
-    ].map((p) => createActor(problemMachine, { snapshot: p }).start());
+    ].map((p) => createActor(ProblemMachine, { snapshot: p }).start());
     const nextFurture = [
       problemsSnapshot.context.problems.map(problemMachineToPersistentSnapshot),
       ...problemsSnapshot.context.furture,
@@ -143,7 +138,7 @@ describe('test machines', () => {
       problemsSnapshot.context.problems.map(problemMachineToPersistentSnapshot),
     ];
     const newProblemMachines = problemsSnapshot.context.furture[0].map((p) =>
-      createActor(problemMachine, { snapshot: p }),
+      createActor(ProblemMachine, { snapshot: p }),
     );
     const nextFurture = problemsSnapshot.context.furture.slice(1);
 

@@ -1,6 +1,6 @@
 import { describe, test, expect } from '@jest/globals';
 import { createActor } from 'xstate';
-import { type LeetCodeQuestion, problemMachine } from '../problem';
+import { type LeetCodeQuestion, ProblemMachine } from '../problem';
 
 const question1: LeetCodeQuestion = {
   questionId: '26',
@@ -15,7 +15,7 @@ const question1: LeetCodeQuestion = {
 } as const;
 
 describe('test problem machine', () => {
-  const problemActor = createActor(problemMachine);
+  const problemActor = createActor(ProblemMachine);
   problemActor.start();
   let past = Date.now();
   let now = Date.now();

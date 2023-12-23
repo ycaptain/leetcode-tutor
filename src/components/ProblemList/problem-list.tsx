@@ -2,6 +2,8 @@ import * as React from 'react';
 import { type LeetCodeQuestion, type Question } from '../../store/problem';
 import { useMachine } from '@xstate/react';
 import { problemsMachine } from '../../store/problems';
+import { ProblemCard } from './problem-card';
+import { getRandomInt } from '../../utils/random';
 
 export interface ProblemListProps {
   questions?: Question[];
@@ -21,30 +23,56 @@ const question1: LeetCodeQuestion = {
 
 export function ProblemList(_props: ProblemListProps) {
   const item = localStorage.getItem('leetcode-guru-state');
-  const [problemSnapshot, send, problemsActor] = useMachine(problemsMachine, {
-    snapshot: item ? JSON.parse(item) : undefined,
-  });
+  const [problemSnapshot, send, problemsActor] = useMachine(
+    problemsMachine,
+    item
+      ? {
+          input: {
+            problems: JSON.parse(item),
+          },
+        }
+      : undefined,
+  );
 
-  console.log('problemSnapshot', problemSnapshot);
+  console.log('problemSnapshot', problemSnapshot, problemsActor);
 
   React.useEffect(() => {
     problemsActor.subscribe((state) => {
       const problems = problemsActor.getSnapshot();
-      localStorage.setItem('leetcode-guru-state', JSON.stringify(problems));
+      localStorage.setItem(
+        'leetcode-guru-state',
+        JSON.stringify(
+          problems.context.problems.map((p) => p.getPersistedSnapshot()),
+        ),
+      );
       console.log('machine', state);
     });
   }, []);
 
   const handleCreate = () => {
+    let newQuestionId = String(getRandomInt(1, 10000));
+    const questionIds = problemsActor
+      .getSnapshot()
+      .context.problems.map((p) => p.getSnapshot().context.questionId);
+    while (questionIds.includes(newQuestionId)) {
+      newQuestionId = String(getRandomInt(1, 10000));
+    }
     send({
       type: 'problem.create',
-      question: question1,
+      question: {
+        ...question1,
+        questionId: newQuestionId,
+        questionFrontendId: newQuestionId,
+      },
     });
   };
 
   return (
     <div>
       <button onClick={handleCreate}>create</button>
+      {problemSnapshot.context.problems.map((problemActor, idx) => (
+        <ProblemCard key={idx} problemActor={problemActor} />
+      ))}
     </div>
   );
 }
