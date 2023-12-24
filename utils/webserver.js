@@ -48,7 +48,7 @@ var server = new WebpackDevServer(
     },
     allowedHosts: 'all',
   },
-  compiler
+  compiler,
 );
 
 (async () => {

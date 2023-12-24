@@ -70,8 +70,8 @@ var options = {
             },
           },
           {
-            loader: 'postcss-loader'
-          }
+            loader: 'postcss-loader',
+          },
         ],
       },
       {
@@ -97,7 +97,7 @@ var options = {
             options: {
               getCustomTransformers: () => ({
                 before: [isDevelopment && ReactRefreshTypeScript()].filter(
-                  Boolean
+                  Boolean,
                 ),
               }),
               transpileOnly: isDevelopment,
@@ -149,7 +149,7 @@ var options = {
                 description: process.env.npm_package_description,
                 version: process.env.npm_package_version,
                 ...JSON.parse(content.toString()),
-              })
+              }),
             );
           },
         },
@@ -162,7 +162,7 @@ var options = {
           from: 'src/assets/img/icon-34.png',
           to: path.join(__dirname, 'build'),
           force: true,
-        }
+        },
       ],
     }),
     new HtmlWebpackPlugin({
@@ -170,7 +170,7 @@ var options = {
       filename: 'popup.html',
       chunks: ['popup'],
       cache: false,
-    })
+    }),
   ],
   infrastructureLogging: {
     level: 'info',

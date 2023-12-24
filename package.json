@@ -9,10 +9,11 @@
   },
   "scripts": {
     "build": "node utils/build.js",
-    "start": "node utils/webserver.js",
-    "prettier": "prettier --write '**/*.{js,jsx,ts,tsx,json,css,scss,md}'",
+    "dev": "node utils/webserver.js",
     "test": "jest",
-    "lint": "eslint --fix --color --cache",
+    "lint": "npm run prettier && npm run eslint",
+    "eslint": "eslint --fix --color --cache",
+    "prettier": "prettier --write '**/*.{js,jsx,ts,tsx,json,css,scss,md}'",
     "prepare": "husky install"
   },
   "lint-staged": {
