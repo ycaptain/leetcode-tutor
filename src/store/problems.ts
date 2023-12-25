@@ -41,7 +41,7 @@ export const problemsMachine = createMachine(
               createActor(ProblemMachine, {
                 snapshot: p,
                 id: getProblemMachineId(p.context.questionId),
-              }),
+              }).start(),
             )
           : [],
       };
@@ -197,7 +197,6 @@ export const problemsMachine = createMachine(
             context.problems.map(problemMachineToPersistentSnapshot),
           ];
           const newFuture: ProblemMachineSnapshot[][] = [];
-
           return {
             past: newPast,
             furture: newFuture,

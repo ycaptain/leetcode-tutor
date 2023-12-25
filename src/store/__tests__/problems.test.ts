@@ -306,6 +306,21 @@ describe('test machines', () => {
       train();
     }
 
+    // train same
+    const problemIdx = getRandomQuestionIdx();
+    const reviews = problemsActor
+      .getSnapshot()
+      .context.problems[problemIdx].getSnapshot().context.reviews;
+    train(problemIdx);
+    train(problemIdx);
+    train(problemIdx);
+    train(problemIdx);
+    train(problemIdx);
+    expect(
+      problemsActor.getSnapshot().context.problems[problemIdx].getSnapshot()
+        .context.reviews.length,
+    ).toEqual(reviews.length + 5);
+
     // master a random problem
     for (let i = 0; i < 20; i++) {
       master();
