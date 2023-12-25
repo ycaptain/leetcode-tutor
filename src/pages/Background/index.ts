@@ -1,24 +1,8 @@
-console.log('Background start!!!!!!!');
+import { listen } from './listener';
+import { startMachine } from './machine';
+// open panel by clicking action
 chrome.sidePanel.setPanelBehavior({ openPanelOnActionClick: true });
 
-// TODO: request listener not work
-// chrome.webRequest.onAuthRequired.addListener(
-//   (details) => {
-//     console.log('An authorization request has been detected');
-//     if (details.url === 'https://httpbin.org/basic-auth/guest/guest') {
-//       // Creating some credentials
-//       const username = 'guest1';
-//       const password = 'guest2';
-//       // Creating an auth handler to use the credentials
-//       const authCredentials = {
-//         authCredentials: {
-//           username: username,
-//           password: password
-//         }
-//       };
-//       // callback(authCredentials);
-//     }
-//   },
-//   { urls: ['https://httpbin.org/basic-auth/guest/guest'] },
-//   ['asyncBlocking']
-// );
+listen();
+startMachine();
+console.log('Background start!!!!!!!');

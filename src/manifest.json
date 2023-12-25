@@ -1,20 +1,33 @@
 {
   "manifest_version": 3,
-  "name": "LeetCode Tutor",
+  "name": "LeetCode Guru",
   "version": "0.0.1",
   "author": "ycaptain",
-  "description": "A Chrome extension for training LeetCode.",
-  "homepage_url": "https://github.com/ycaptain/leetcode-tutor",
+  "description": "A Chrome extension for training with LeetCode.",
+  "homepage_url": "https://github.com/ycaptain/leetcode-guru",
   "background": { "service_worker": "background.bundle.js" },
   "action": {
     "default_popup": "popup.html",
     "default_icon": "icon-34.png",
     "default_title": "Click to open panel"
   },
-  "permissions": ["sidePanel"],
+  "permissions": [
+    "sidePanel",
+    "tabs",
+    "storage",
+    "webRequest",
+    "webRequestAuthProvider",
+    "background"
+  ],
   "side_panel": {
     "default_path": "popup.html"
   },
+  "content_scripts": [
+    {
+      "matches": ["http://leetcode.com/*", "https://leetcode.com/*"],
+      "js": ["contentScript.bundle.js"]
+    }
+  ],
   "icons": {
     "128": "icon-128.png"
   },

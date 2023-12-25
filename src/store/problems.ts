@@ -11,6 +11,7 @@ import {
   type LeetCodeQuestion,
   ProblemMachine,
   type ProblemMachineType,
+  getProblemMachineId,
 } from './problem';
 
 export type ProblemMachineSnapshot = Snapshot<unknown> & {
@@ -18,6 +19,7 @@ export type ProblemMachineSnapshot = Snapshot<unknown> & {
 };
 
 export type ProblemMachineActor = ActorRefFrom<ProblemMachineType>;
+export type ProblemsMachineActor = ActorRefFrom<ProblemsMachineType>;
 
 /** get persistent snapshot of problem machine for problems machine context type */
 export function problemMachineToPersistentSnapshot(
@@ -26,6 +28,7 @@ export function problemMachineToPersistentSnapshot(
   return problemMachine.getPersistedSnapshot() as ProblemMachineSnapshot;
 }
 
+export type ProblemsMachineType = typeof problemsMachine;
 export const problemsMachine = createMachine(
   {
     /** @xstate-layout N4IgpgJg5mDOIC5QAUBOB7ARgGzAW1gGIBXAOwnQG0AGAXUVAAd1YBLAF1fVIZAA9EAFgCsAOgCMAdgDMADmkA2aQE5By4cNmyANCACeQ5ZIkAmJYPHDBCwbOomAvg91osuAoVSQqdXszac3LwCCCISMvJKquqakroGodTiorLC4gomihpSgopOLhg4+ESMhe6iAMZeAIbsYDT0SCD+HFw8TSHigqImgiaygoKSVuJm4soK8YjS1AqiwpIKkSazkoLUgvkgrkUepW74ol6w7NWo7A1+LK1BHYijKeJy1AMZUv2WUwgmwnPDT9RJL1ZMoTMMFFsdu4SmVDscwBdfE0WoF2qBOrJREDhGZhICZAtFNIvulkkMFBoRJJlNQFhlIbC9ozRHhqicwKhLsjrqjgvcTCTxMkKeJ7L8TKNBrIGQcmbLROxUNVWKQuUweW0+d9qCl7C8FDTpBY5NI4vpEApkrIfmoFHajdJxtLnNtGTD5RAwLg6mrmhrbuj7t1fuJUoopELRRoSY4tqR0J74E0ocUrgFNXcEIpRBM1r9LUkrDIvsIjKJ1kL+spol1Y04gA */
@@ -35,7 +38,10 @@ export const problemsMachine = createMachine(
         furture: [],
         problems: input
           ? input.problems.map((p) =>
-              createActor(ProblemMachine, { snapshot: p as any }),
+              createActor(ProblemMachine, {
+                snapshot: p,
+                id: getProblemMachineId(p.context.questionId),
+              }),
             )
           : [],
       };
@@ -55,7 +61,7 @@ export const problemsMachine = createMachine(
             }
 
             const newProblemMachine = spawn(ProblemMachine, {
-              id: `problem-${p.context.questionId}`,
+              id: getProblemMachineId(p.context.questionId),
             });
             newProblemMachine.start();
 
@@ -86,7 +92,7 @@ export const problemsMachine = createMachine(
               }
 
               const newProblemMachine = spawn(ProblemMachine, {
-                id: `problem-${p.context.questionId}`,
+                id: getProblemMachineId(p.context.questionId),
               });
               newProblemMachine.start();
 
@@ -107,7 +113,7 @@ export const problemsMachine = createMachine(
       'problem.create': {
         actions: assign(({ context, event, spawn }) => {
           const newProblemMachine = spawn(ProblemMachine, {
-            id: `problem-${event.question.questionId}`,
+            id: getProblemMachineId(event.question.questionId),
           });
           newProblemMachine.start();
           newProblemMachine.send({ type: 'start', question: event.question });
@@ -129,7 +135,7 @@ export const problemsMachine = createMachine(
       'problem.restart': {
         actions: assign(({ context, event }) => {
           const machineIdx = context.problems.findIndex(
-            (p) => p.id === `problem-${event.questionId}`,
+            (p) => p.id === getProblemMachineId(event.questionId),
           );
           const machine = context.problems[machineIdx];
           context.problems[machineIdx].send({ type: 'train' });
@@ -155,7 +161,7 @@ export const problemsMachine = createMachine(
       'problem.reset': {
         actions: assign(({ context, event }) => {
           const machineIdx = context.problems.findIndex(
-            (p) => p.id === `problem-${event.questionId}`,
+            (p) => p.id === getProblemMachineId(event.questionId),
           );
 
           const machine = context.problems[machineIdx];
@@ -182,7 +188,7 @@ export const problemsMachine = createMachine(
       'problem.train': {
         actions: assign(({ context, event }) => {
           const machineIdx = context.problems.findIndex(
-            (p) => p.id === `problem-${event.questionId}`,
+            (p) => p.id === getProblemMachineId(event.questionId),
           );
           context.problems[machineIdx].send({ type: 'train' });
 
@@ -202,7 +208,7 @@ export const problemsMachine = createMachine(
       'problem.master': {
         actions: assign(({ context, event }) => {
           const machineIdx = context.problems.findIndex(
-            (p) => p.id === `problem-${event.questionId}`,
+            (p) => p.id === getProblemMachineId(event.questionId),
           );
           context.problems[machineIdx].send({ type: 'master' });
           const newPast = [
@@ -222,13 +228,13 @@ export const problemsMachine = createMachine(
         actions: [
           stopChild(({ context, event }) => {
             const machineIdx = context.problems.findIndex(
-              (p) => p.id === `problem-${event.questionId}`,
+              (p) => p.id === getProblemMachineId(event.questionId),
             );
             return context.problems[machineIdx].id;
           }),
           assign(({ context, event }) => {
             const machineIdx = context.problems.findIndex(
-              (p) => p.id === `problem-${event.questionId}`,
+              (p) => p.id === getProblemMachineId(event.questionId),
             );
 
             const newPast = [
@@ -269,7 +275,7 @@ export const problemsMachine = createMachine(
       },
       // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
       input: {} as {
-        problems: ProblemMachineActor[];
+        problems: ProblemMachineSnapshot[];
       },
     },
   },
