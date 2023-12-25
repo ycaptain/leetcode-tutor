@@ -2,10 +2,7 @@ import { ChromeStorage } from '../../store/chrome';
 import { problemsActor, submitQuestion } from './machine';
 
 import { SidePanelRuntimeName } from '../../utils/consts';
-import {
-  type TransmitProblemsBody,
-  type SubmitSolutionResp,
-} from '../../utils/messages';
+import { Messages } from '../../utils/messages';
 import { type UIProblems } from '../../store/problem';
 
 /** side panel open status */
@@ -43,20 +40,21 @@ export function listen() {
               state: snap.value as UIProblems['state'],
             };
           });
-        chrome.runtime.sendMessage<TransmitProblemsBody, SubmitSolutionResp>(
-          {
-            from: 'background',
-            to: 'popup',
-            type: 'pass_machine',
-            data: {
-              problems,
-            },
-          },
-          (resp) => {
-            console.log('resp', resp);
-          },
-        );
+        Messages.transmitProblems(problems);
       })();
+    } else if (request.type === 'request_problems') {
+      sendResponse('ok');
+
+      const problems: UIProblems[] = problemsActor
+        .getSnapshot()
+        .context.problems.map((p) => {
+          const snap = p.getSnapshot();
+          return {
+            ...snap.context,
+            state: snap.value as UIProblems['state'],
+          };
+        });
+      Messages.transmitProblems(problems);
     }
   });
 }

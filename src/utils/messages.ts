@@ -1,6 +1,9 @@
 import { type UIProblems } from '../store/problem';
 
-export type MessagesBody = SubmitSolutionBody | TransmitProblemsBody;
+export type MessagesBody =
+  | SubmitSolutionBody
+  | TransmitProblemsBody
+  | RequestProblemsBody;
 
 export type MessageResponse = SubmitSolutionResp;
 
@@ -22,10 +25,16 @@ interface SubmitSolutionBody {
 export interface TransmitProblemsBody {
   from: MessageTarget;
   to: MessageTarget;
-  type: 'pass_machine';
+  type: 'transmit_problems';
   data: {
     problems: UIProblems[];
   };
+}
+
+export interface RequestProblemsBody {
+  from: MessageTarget;
+  to: MessageTarget;
+  type: 'request_problems';
 }
 
 export type SubmitSolutionResp = 'ok';
@@ -49,6 +58,33 @@ export const Messages = {
       (resp) => {
         console.log('resp', resp);
         cb?.(resp);
+      },
+    );
+  },
+  transmitProblems(problems: UIProblems[]) {
+    chrome.runtime.sendMessage<TransmitProblemsBody, SubmitSolutionResp>(
+      {
+        from: 'background',
+        to: 'popup',
+        type: 'transmit_problems',
+        data: {
+          problems,
+        },
+      },
+      (resp) => {
+        console.log('resp', resp);
+      },
+    );
+  },
+  requestProblems() {
+    chrome.runtime.sendMessage<RequestProblemsBody, SubmitSolutionResp>(
+      {
+        from: 'popup',
+        to: 'background',
+        type: 'request_problems',
+      },
+      (resp) => {
+        console.log('resp', resp);
       },
     );
   },
