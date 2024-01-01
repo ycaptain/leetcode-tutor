@@ -10,7 +10,14 @@ export interface ProblemCardProps {
 export function ProblemCard(props: ProblemCardProps) {
   const { problem } = props;
   return (
-    <div className="bg-white rounded-lg p-4 shadow hover:shadow-lg cursor-pointer">
+    <div
+      className="bg-white rounded-lg p-4 shadow hover:shadow-lg cursor-pointer"
+      onClick={() => {
+        chrome.tabs.create({
+          url: `https://leetcode.com/problems/${problem.titleSlug}`,
+        });
+      }}
+    >
       <div className="flex flex-col justify-between">
         <div className="flex flex-row justify-between items-baseline">
           <label className="font-bold truncate mr-4">{`${problem.questionId}. ${problem.title}`}</label>
